@@ -13,6 +13,10 @@ void Decoder::setRender(Render *render) {
     m_render = render;
 }
 
+void Decoder::setCallback(PlayerCallback *callback) {
+    m_callback = callback;
+}
+
 void Decoder::startDecode() {
     if (!m_url) {
         return;
@@ -63,8 +67,11 @@ void Decoder::init() {
 
     m_videoWidth = m_decoderContext->width;
     m_videoHeight = m_decoderContext->height;
-    m_render->setVideoSize(m_videoWidth, m_videoHeight);
 
+    if (m_callback != nullptr) {
+        m_callback->setVideoSize(m_videoWidth, m_videoHeight);
+    }
+    m_render->setVideoSize(m_videoWidth, m_videoHeight);
     m_swContext = sws_getContext(m_videoWidth, m_videoHeight, m_decoderContext->pix_fmt,
                                  m_render->getRenderWidth(),
                                  m_render->getRenderHeight(), AV_PIX_FMT_RGBA, SWS_FAST_BILINEAR,

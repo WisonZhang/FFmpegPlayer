@@ -10,7 +10,7 @@
 class FFmpegPlayer : public Player {
 
 public:
-    void init(JNIEnv *env) override;
+    void init(JNIEnv *env, jobject obj) override;
 
     void setUrl(JNIEnv *env, jstring jurl) override;
 

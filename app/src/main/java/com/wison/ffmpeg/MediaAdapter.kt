@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 
 /**
- * Created by ZhangWeiRong on 2021/5/11.
+ * Created by Wison on 2021/5/11.
  */
 class MediaAdapter(val data: List<VideoInfo>): RecyclerView.Adapter<MediaAdapter.ViewHolder>() {
 

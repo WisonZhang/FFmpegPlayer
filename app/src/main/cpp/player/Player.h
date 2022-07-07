@@ -8,12 +8,13 @@
 #include <jni.h>
 #include <decode/Decoder.h>
 #include <render/Render.h>
+#include "PlayerCallback.h"
 
 class Player {
 public:
     Player() {}
 
-    virtual void init(JNIEnv *env) = 0;
+    virtual void init(JNIEnv *env, jobject obj) = 0;
     virtual void setSurface(JNIEnv *env, jobject surface) = 0;
     virtual void setUrl(JNIEnv *env, jstring jurl) = 0;
     virtual void play() = 0;
@@ -26,7 +27,7 @@ public:
 protected:
     Decoder* m_decoder = nullptr;
     Render* m_render = nullptr;
-
+    PlayerCallback* m_callback = nullptr;
 };
 
 #endif //FFMEPGPROJECT_PLAYER_H

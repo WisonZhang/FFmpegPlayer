@@ -12,6 +12,7 @@ extern "C" {
 }
 
 #include "Render.h"
+#include "PlayerCallback.h"
 
 class Decoder {
 
@@ -19,6 +20,7 @@ public:
     void setUrl(const char* url);
     void startDecode();
     void setRender(Render* render);
+    void setCallback(PlayerCallback* callback);
 
 protected:
     AVFormatContext* m_fmContext;
@@ -31,6 +33,7 @@ protected:
     AVFrame* m_rgbFrame;
     uint8_t* m_frameBuffer = nullptr;
     Render* m_render = nullptr;
+    PlayerCallback* m_callback = nullptr;
 
     char* m_url;
     int m_streamIndex = -1;

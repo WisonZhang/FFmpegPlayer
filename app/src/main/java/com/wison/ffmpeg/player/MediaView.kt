@@ -1,16 +1,21 @@
 package com.wison.ffmpeg.player
 
 import android.content.Context
+import android.graphics.Color
 import android.graphics.SurfaceTexture
+import android.os.Handler
+import android.os.Looper
 import android.util.AttributeSet
 import android.view.Surface
+import android.view.SurfaceView
 import android.view.TextureView
 import android.widget.FrameLayout
+import android.widget.RelativeLayout
 
 /**
- * Created by ZhangWeiRong on 2022/7/3.
+ * Created by Wison on 2022/7/3.
  */
-class MediaView: FrameLayout, TextureView.SurfaceTextureListener {
+class MediaView: RelativeLayout, TextureView.SurfaceTextureListener {
 
     companion object {
         init {
@@ -18,7 +23,9 @@ class MediaView: FrameLayout, TextureView.SurfaceTextureListener {
         }
     }
 
-    private val mTextureView = TextureView(context)
+    private val mTextureView = MediaTextureView(context)
+    private val mSurfaceView = SurfaceView(context)
+    private val mListener = PlayerListenerImpl(this)
     private var mPath: String? = null
     private var mSurface: Surface? = null
 
@@ -29,7 +36,12 @@ class MediaView: FrameLayout, TextureView.SurfaceTextureListener {
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
     init {
-        addView(mTextureView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        setBackgroundColor(Color.BLACK)
+        val lp = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        lp.addRule(CENTER_IN_PARENT, TRUE)
+
+        addView(mTextureView, lp)
+//        addView(mSurfaceView, lp)
         mTextureView.surfaceTextureListener = this
     }
 
@@ -38,9 +50,14 @@ class MediaView: FrameLayout, TextureView.SurfaceTextureListener {
     }
 
     fun play() {
+//        mSurface = mSurfaceView.holder.surface
         mPath ?: return
         mSurface ?: return
         playVideo(mPath!!, mSurface!!)
+    }
+
+    fun setVideoSize(videoWidth: Int, videoHeight: Int) {
+        mTextureView.setVideoSize(videoWidth, videoHeight)
     }
 
     override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
@@ -49,18 +66,14 @@ class MediaView: FrameLayout, TextureView.SurfaceTextureListener {
         }
     }
 
-    override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {
-
-    }
-
     override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
         mSurface = null
         return false
     }
 
-    override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
+    override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {}
 
-    }
+    override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {}
 
     private external fun playVideo(path: String, surface: Surface)
 

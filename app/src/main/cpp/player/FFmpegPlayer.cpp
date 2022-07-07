@@ -5,8 +5,10 @@
 #include "FFmpegPlayer.h"
 #include <Decoder.h>
 
-void FFmpegPlayer::init(JNIEnv *env) {
+void FFmpegPlayer::init(JNIEnv *env, jobject obj) {
     m_decoder = new Decoder();
+    m_callback = new PlayerCallback(env, obj);
+    m_decoder->setCallback(m_callback);
 }
 
 void FFmpegPlayer::setSurface(JNIEnv *env, jobject surface) {

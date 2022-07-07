@@ -15,7 +15,8 @@ void Render::setVideoSize(int width, int height) {
 
     int windowWidth = ANativeWindow_getWidth(m_nativeWindow);
     int windowHeight = ANativeWindow_getHeight(m_nativeWindow);
-    if (windowWidth < windowHeight * m_videoWidth / m_videoHeight) {
+
+    if (m_videoWidth > m_videoHeight) {
         m_renderWidth = windowWidth;
         m_renderHeight = windowWidth * m_videoHeight / m_videoWidth;
     } else {
@@ -44,7 +45,7 @@ void Render::drawFrame(AVFrame* frame) {
     int dstStride = m_buffer.stride * 4;
 
     uint8_t* src = frame->data[0];
-    int lineSize = m_renderWidth * 4;
+    int lineSize = frame->linesize[0];
 
     for (int i = 0; i < m_renderHeight; i++) {
         memcpy(dst + i * dstStride, src + i * lineSize, lineSize);
