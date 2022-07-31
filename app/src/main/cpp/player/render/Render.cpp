@@ -4,6 +4,8 @@
 
 #include "Render.h"
 #include <cstring>
+#include <android/native_window.h>
+#include <android/native_window_jni.h>
 
 Render::Render(JNIEnv *env, jobject surface) {
     m_nativeWindow = ANativeWindow_fromSurface(env, surface);
@@ -15,14 +17,18 @@ void Render::setVideoSize(int width, int height) {
 
     int windowWidth = ANativeWindow_getWidth(m_nativeWindow);
     int windowHeight = ANativeWindow_getHeight(m_nativeWindow);
+    int format = ANativeWindow_getFormat(m_nativeWindow);
 
-    if (m_videoWidth > m_videoHeight) {
-        m_renderWidth = windowWidth;
-        m_renderHeight = windowWidth * m_videoHeight / m_videoWidth;
-    } else {
-        m_renderWidth = windowHeight * m_videoWidth / m_videoHeight;
-        m_renderHeight = windowHeight;
-    }
+    m_renderWidth = windowWidth;
+    m_renderHeight = windowHeight;
+
+//    if (m_videoWidth > m_videoHeight) {
+//        m_renderWidth = windowWidth;
+//        m_renderHeight = windowWidth * m_videoHeight / m_videoWidth;
+//    } else {
+//        m_renderWidth = windowHeight * m_videoWidth / m_videoHeight;
+//        m_renderHeight = windowHeight;
+//    }
 
     ANativeWindow_setBuffersGeometry(m_nativeWindow, m_renderWidth, m_renderHeight, WINDOW_FORMAT_RGBA_8888);
 }
@@ -41,7 +47,7 @@ void Render::drawFrame(AVFrame* frame) {
     }
     ANativeWindow_lock(m_nativeWindow, &m_buffer, nullptr);
 
-    uint8_t* dst = static_cast<uint8_t *>(m_buffer.bits);
+    auto* dst = static_cast<uint8_t *>(m_buffer.bits);
     int dstStride = m_buffer.stride * 4;
 
     uint8_t* src = frame->data[0];

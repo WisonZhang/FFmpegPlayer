@@ -24,7 +24,7 @@ class MediaView: RelativeLayout, TextureView.SurfaceTextureListener {
     }
 
     private val mTextureView = MediaTextureView(context)
-    private val mSurfaceView = SurfaceView(context)
+    private val mSurfaceView = MediaSurfaceView(context)
     private val mListener = PlayerListenerImpl(this)
     private var mPath: String? = null
     private var mSurface: Surface? = null
@@ -40,8 +40,8 @@ class MediaView: RelativeLayout, TextureView.SurfaceTextureListener {
         val lp = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         lp.addRule(CENTER_IN_PARENT, TRUE)
 
-        addView(mTextureView, lp)
-//        addView(mSurfaceView, lp)
+//        addView(mTextureView, lp)
+        addView(mSurfaceView, lp)
         mTextureView.surfaceTextureListener = this
     }
 
@@ -50,7 +50,7 @@ class MediaView: RelativeLayout, TextureView.SurfaceTextureListener {
     }
 
     fun play() {
-//        mSurface = mSurfaceView.holder.surface
+        mSurface = mSurfaceView.holder.surface
         mPath ?: return
         mSurface ?: return
         playVideo(mPath!!, mSurface!!)
@@ -58,6 +58,7 @@ class MediaView: RelativeLayout, TextureView.SurfaceTextureListener {
 
     fun setVideoSize(videoWidth: Int, videoHeight: Int) {
         mTextureView.setVideoSize(videoWidth, videoHeight)
+        mSurfaceView.setVideoSize(videoWidth, videoHeight)
     }
 
     override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
@@ -74,6 +75,8 @@ class MediaView: RelativeLayout, TextureView.SurfaceTextureListener {
     override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {}
 
     override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {}
+
+    private external fun getVideoInfo(path: String)
 
     private external fun playVideo(path: String, surface: Surface)
 
