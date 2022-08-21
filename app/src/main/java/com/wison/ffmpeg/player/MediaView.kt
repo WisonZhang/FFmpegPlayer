@@ -42,7 +42,7 @@ class MediaView: RelativeLayout, TextureView.SurfaceTextureListener {
 
 //        addView(mTextureView, lp)
         addView(mSurfaceView, lp)
-        mTextureView.surfaceTextureListener = this
+//        mTextureView.surfaceTextureListener = this
     }
 
     fun setPath(path: String?) {
@@ -75,8 +75,6 @@ class MediaView: RelativeLayout, TextureView.SurfaceTextureListener {
     override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {}
 
     override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {}
-
-    private external fun getVideoInfo(path: String)
 
     private external fun playVideo(path: String, surface: Surface)
 

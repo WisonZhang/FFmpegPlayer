@@ -6,8 +6,8 @@
 #define FFMEPGPROJECT_PLAYER_H
 
 #include <jni.h>
-#include <decode/Decoder.h>
-#include <render/Render.h>
+#include <decode/PlayerCore.h>
+#include <render/VideoNativeRender.h>
 #include "PlayerCallback.h"
 
 class Player {
@@ -25,8 +25,7 @@ public:
     virtual void release() = 0;
 
 protected:
-    Decoder* m_decoder = nullptr;
-    Render* m_render = nullptr;
+    PlayerCore* m_playCore = nullptr;
     PlayerCallback* m_callback = nullptr;
 };
 

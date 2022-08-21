@@ -9,7 +9,7 @@ PlayerCallback::PlayerCallback(JNIEnv *env, jobject obj) {
     m_obj = obj;
 }
 
-void PlayerCallback::setVideoSize(int width, int height) {
+void PlayerCallback::onVideoSize(int width, int height) {
     if (!m_env || !m_obj) {
         return;
     }

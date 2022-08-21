@@ -11,7 +11,7 @@ class PlayerCallback {
 
 public:
     PlayerCallback(JNIEnv *env, jobject obj);
-    void setVideoSize(int width, int height);
+    void onVideoSize(int width, int height);
 
 private:
     JNIEnv* m_env = nullptr;

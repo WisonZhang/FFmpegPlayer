@@ -11,7 +11,7 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
-#include "Render.h"
+#include "VideoNativeRender.h"
 #include "PlayerCallback.h"
 
 class Decoder {
@@ -19,7 +19,7 @@ class Decoder {
 public:
     void setUrl(const char* url);
     void startDecode();
-    void setRender(Render* render);
+    void setRender(VideoNativeRender* render);
     void setCallback(PlayerCallback* callback);
 
 protected:
@@ -32,7 +32,7 @@ protected:
     AVFrame* m_frame;
     AVFrame* m_rgbFrame;
     uint8_t* m_frameBuffer = nullptr;
-    Render* m_render = nullptr;
+    VideoNativeRender* m_render = nullptr;
     PlayerCallback* m_callback = nullptr;
 
     char* m_url;
@@ -44,6 +44,8 @@ protected:
 private:
     void init();
     void doDecode();
+    void doVideoDecode();
+    void doAudioDecode();
     void end();
 };
 

@@ -9,7 +9,7 @@ void Decoder::setUrl(const char *url) {
     strcpy(m_url, url);
 }
 
-void Decoder::setRender(Render *render) {
+void Decoder::setRender(VideoNativeRender *render) {
     m_render = render;
 }
 
@@ -69,9 +69,8 @@ void Decoder::init() {
     m_videoHeight = m_decoderContext->height;
 
     if (m_callback != nullptr) {
-        m_callback->setVideoSize(m_videoWidth, m_videoHeight);
+        m_callback->onVideoSize(m_videoWidth, m_videoHeight);
     }
-    m_render->setVideoSize(m_videoWidth, m_videoHeight);
     m_swContext = sws_getContext(m_videoWidth, m_videoHeight, m_decoderContext->pix_fmt,
                                  m_render->getRenderWidth(),
                                  m_render->getRenderHeight(), AV_PIX_FMT_RGBA, SWS_FAST_BILINEAR,
@@ -92,6 +91,7 @@ void Decoder::init() {
     avcodec_free_context(&m_decoderContext);
     avformat_close_input(&m_fmContext);
     avformat_free_context(m_fmContext);
+    free(m_frameBuffer);
     m_fmContext = nullptr;
 }
 
@@ -116,6 +116,14 @@ void Decoder::doDecode() {
         }
         av_packet_unref(m_packet);
     }
+}
+
+void Decoder::doVideoDecode() {
+
+}
+
+void Decoder::doAudioDecode() {
+
 }
 
 void Decoder::end() {

@@ -6,29 +6,28 @@
 #include <Decoder.h>
 
 void FFmpegPlayer::init(JNIEnv *env, jobject obj) {
-    m_decoder = new Decoder();
+    m_playCore = new PlayerCore();
     m_callback = new PlayerCallback(env, obj);
-    m_decoder->setCallback(m_callback);
+    m_playCore->setCallback(m_callback);
 }
 
 void FFmpegPlayer::setSurface(JNIEnv *env, jobject surface) {
-    if (!m_render) {
-        m_render = new Render(env, surface);
-        m_decoder->setRender(m_render);
+    if (m_playCore) {
+        m_playCore->setSurface(env, surface);
     }
 }
 
 void FFmpegPlayer::setUrl(JNIEnv *env, jstring jurl) {
     const char* url = env->GetStringUTFChars(jurl, nullptr);
-    if (m_decoder) {
-        m_decoder->setUrl(const_cast<char *>(url));
+    if (m_playCore) {
+        m_playCore->setUrl(const_cast<char *>(url));
     }
     env->ReleaseStringUTFChars(jurl, url);
 }
 
 void FFmpegPlayer::play() {
-    if (m_decoder) {
-        m_decoder->startDecode();
+    if (m_playCore) {
+        m_playCore->startDecode();
     }
 }
 
@@ -49,5 +48,7 @@ void FFmpegPlayer::seekTo(long position) {
 }
 
 void FFmpegPlayer::release() {
-
+    if (m_playCore) {
+        m_playCore->release();
+    }
 }
