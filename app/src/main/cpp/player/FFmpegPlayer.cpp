@@ -3,7 +3,6 @@
 //
 
 #include "FFmpegPlayer.h"
-#include <Decoder.h>
 
 void FFmpegPlayer::init(JNIEnv *env, jobject obj) {
     m_playCore = new PlayerCore();
@@ -39,16 +38,16 @@ void FFmpegPlayer::pause() {
 
 }
 
-void FFmpegPlayer::stop() {
-
-}
-
 void FFmpegPlayer::seekTo(long position) {
 
 }
 
-void FFmpegPlayer::release() {
+void FFmpegPlayer::stop() {
     if (m_playCore) {
         m_playCore->release();
     }
+}
+
+void FFmpegPlayer::release() {
+
 }

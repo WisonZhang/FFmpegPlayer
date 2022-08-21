@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10.2)
 #find_library(log-lib log)
 
 set(JNI_LIBS_DIR ${CMAKE_SOURCE_DIR}/jniLibs/armeabi-v7a)
-set(libname player_core)
+set(libname player_engine)
 
 include_directories(
         ${CMAKE_SOURCE_DIR}/cpp/include

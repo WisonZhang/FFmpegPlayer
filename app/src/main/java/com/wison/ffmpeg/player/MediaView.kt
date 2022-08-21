@@ -19,7 +19,7 @@ class MediaView: RelativeLayout, TextureView.SurfaceTextureListener {
 
     companion object {
         init {
-            System.loadLibrary("player_core")
+            System.loadLibrary("player_engine")
         }
     }
 
@@ -28,6 +28,7 @@ class MediaView: RelativeLayout, TextureView.SurfaceTextureListener {
     private val mListener = PlayerListenerImpl(this)
     private var mPath: String? = null
     private var mSurface: Surface? = null
+    private var mPlayerPtr: Long = 0
 
     constructor(context: Context) : super(context)
 
@@ -49,16 +50,20 @@ class MediaView: RelativeLayout, TextureView.SurfaceTextureListener {
         mPath = path
     }
 
+    fun setVideoSize(videoWidth: Int, videoHeight: Int) {
+        mTextureView.setVideoSize(videoWidth, videoHeight)
+        mSurfaceView.setVideoSize(videoWidth, videoHeight)
+    }
+
     fun play() {
         mSurface = mSurfaceView.holder.surface
         mPath ?: return
         mSurface ?: return
-        playVideo(mPath!!, mSurface!!)
+        mPlayerPtr = playVideo(mPath!!, mSurface!!)
     }
 
-    fun setVideoSize(videoWidth: Int, videoHeight: Int) {
-        mTextureView.setVideoSize(videoWidth, videoHeight)
-        mSurfaceView.setVideoSize(videoWidth, videoHeight)
+    fun stop() {
+        stopVideo(mPlayerPtr)
     }
 
     override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
@@ -76,6 +81,8 @@ class MediaView: RelativeLayout, TextureView.SurfaceTextureListener {
 
     override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {}
 
-    private external fun playVideo(path: String, surface: Surface)
+    private external fun playVideo(path: String, surface: Surface): Long
+
+    private external fun stopVideo(player: Long)
 
 }
