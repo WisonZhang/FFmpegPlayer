@@ -13,6 +13,7 @@ extern "C" {
 
 class VideoRender {
 public:
+    virtual ~VideoRender() = default;
     virtual int getRenderWidth() = 0;
     virtual int getRenderHeight() = 0;
     virtual AVPixelFormat getRenderPixel() = 0;

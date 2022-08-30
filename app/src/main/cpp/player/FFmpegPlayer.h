@@ -27,10 +27,6 @@ public:
     void seekTo(long position) override;
 
     void release() override;
-
-private:
-
-
 };
 
 #endif //FFMEPGPROJECT_FFMPEGPLAYER_H

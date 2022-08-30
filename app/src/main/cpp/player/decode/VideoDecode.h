@@ -7,13 +7,17 @@
 
 #include "BaseDecode.h"
 
+extern "C" {
+#include <libswscale/swscale.h>
+}
+
 class VideoDecode: public BaseDecode {
 public:
     VideoDecode();
+    void setVideoRender(VideoRender* render);
     void onInfoReady() override;
     void startDecode() override;
     void release() override;
-    void setVideoRender(VideoRender* render);
 
 private:
     SwsContext* m_swContext = nullptr;

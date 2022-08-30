@@ -35,7 +35,7 @@ void VideoDecode::onInfoReady() {
 }
 
 void VideoDecode::startDecode() {
-    LOG_D("startDecode");
+    LOG_D("VideoDecode startDecode");
     while (av_read_frame(m_fmContext, m_packet) == 0) {
         if (m_packet->stream_index != m_streamIndex) {
             av_packet_unref(m_packet);
