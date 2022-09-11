@@ -7,12 +7,16 @@
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
 
-void VideoNativeRender::setSurface(JNIEnv *env, jobject& surface) {
-    m_nativeWindow = ANativeWindow_fromSurface(env, surface);
+void VideoNativeRender::init(JNIEnv *env) {
+    m_nativeWindow = ANativeWindow_fromSurface(env, m_surface);
     m_renderWidth = ANativeWindow_getWidth(m_nativeWindow);
     m_renderHeight = ANativeWindow_getHeight(m_nativeWindow);
     LOG_D("setSurface, width: %d; height: %d", m_renderWidth, m_renderHeight);
     ANativeWindow_setBuffersGeometry(m_nativeWindow, m_renderWidth, m_renderHeight, WINDOW_FORMAT_RGBA_8888);
+}
+
+void VideoNativeRender::setSurface(jobject surface) {
+    m_surface = surface;
 }
 
 int VideoNativeRender::getRenderWidth() {

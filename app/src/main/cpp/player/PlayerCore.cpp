@@ -8,9 +8,9 @@
 #include <string>
 #include <render/AudioTrackRender.h>
 
-PlayerCore::PlayerCore(JNIEnv* env, jobject obj) {
-    m_env = env;
-    m_obj = obj;
+PlayerCore::PlayerCore(JavaVM *vm, JNIEnv* env, jobject obj) {
+    m_jvm = vm;
+    m_obj = env->NewGlobalRef(obj);
 }
 
 void PlayerCore::setUrl(const char *url) {
@@ -18,12 +18,8 @@ void PlayerCore::setUrl(const char *url) {
     strcpy(m_url, url);
 }
 
-void PlayerCore::setSurface(jobject &surface) {
-    m_surface = surface;
-}
-
-void PlayerCore::setCallback(PlayerCallback *callback) {
-    m_callback = callback;
+void PlayerCore::setSurface(JNIEnv *env, jobject &surface) {
+    m_surface = env->NewGlobalRef(surface);
 }
 
 void PlayerCore::setDecodeType(DecodeType type) {
@@ -44,19 +40,16 @@ void PlayerCore::startDecode() {
         return;
     }
     // 设置视频解码
-    m_videoRender->setSurface(m_env, m_surface);
-    m_videoDecode->setCallback(m_callback);
+    m_videoDecode->setJavaInfo(m_jvm, m_obj);
     m_videoDecode->setVideoRender(m_videoRender);
-    m_videoDecode->init(m_url);
 
     // 设置音频解码
-    m_audioDecode->setCallback(m_callback);
+    m_audioDecode->setJavaInfo(m_jvm, m_obj);
     m_audioDecode->setAudioRender(m_audioRender);
-    m_audioDecode->init(m_url);
 
     // 开始解码
-//    m_videoDecode->startDecode();
-    m_audioDecode->startDecode();
+    m_videoDecode->play(m_url);
+    m_audioDecode->play(m_url);
 }
 
 void PlayerCore::init() {
@@ -73,13 +66,14 @@ void PlayerCore::init() {
     // 视频渲染
     if (m_videoRenderType == VIDEO_RENDER_TYPE_AN) {
         m_videoRender = reinterpret_cast<VideoRender *>(new VideoNativeRender());
+        m_videoRender->setSurface(m_surface);
     }
 
     // 音频渲染
     if (m_audioRenderType == AUDIO_RENDER_TYPE_AT) {
         auto render = new AudioTrackRender();
-        render->init(m_env, m_obj);
         m_audioRender = reinterpret_cast<AudioRender *>(render);
+        m_audioRender->setObject(m_obj);
     }
 
     if (m_videoDecode != nullptr && m_audioDecode != nullptr
@@ -115,7 +109,7 @@ void PlayerCore::release() {
     m_audioRenderType = AUDIO_RENDER_TYPE_AT;
     delete m_url;
     m_url = nullptr;
-    m_env = nullptr;
     m_surface = nullptr;
+    m_obj = nullptr;
     isInit = false;
 }

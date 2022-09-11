@@ -4,7 +4,30 @@
 
 #include "BaseDecode.h"
 
-void BaseDecode::init(char *url) {
+void BaseDecode::play(char *url) {
+    if (m_thread == nullptr) {
+        m_thread = new thread(startDecode, url, this);
+    }
+}
+
+void BaseDecode::setJavaInfo(JavaVM *vm, jobject obj) {
+    m_jvm = vm;
+    m_obj = obj;
+}
+
+void BaseDecode::startDecode(char *url, BaseDecode *decode) {
+    decode->attachThread();
+    decode->doParse(url);
+    decode->onInfoReady();
+    decode->doDecode();
+}
+
+void BaseDecode::attachThread() {
+    m_jvm->AttachCurrentThread(&m_env, nullptr);
+    m_callback = new PlayerCallback(m_env, m_obj);
+}
+
+void BaseDecode::doParse(char *url) {
     int res;
 
     m_fmContext = avformat_alloc_context();
@@ -51,12 +74,6 @@ void BaseDecode::init(char *url) {
 
     m_packet = av_packet_alloc();
     m_frame = av_frame_alloc();
-
-    onInfoReady();
-}
-
-void BaseDecode::setCallback(PlayerCallback *callback) {
-    m_callback = callback;
 }
 
 void BaseDecode::release() {
@@ -79,4 +96,5 @@ void BaseDecode::release() {
         avformat_free_context(m_fmContext);
         m_fmContext = nullptr;
     }
+    m_env = nullptr;
 }

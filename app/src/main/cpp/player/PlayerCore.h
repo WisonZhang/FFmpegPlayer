@@ -26,11 +26,10 @@ enum AudioRenderType {
 class PlayerCore {
 
 public:
-    PlayerCore(JNIEnv* env, jobject obj);
+    PlayerCore(JavaVM* vm, JNIEnv* env, jobject obj);
     void setUrl(const char* url);
-    void setSurface(jobject& surface);
+    void setSurface(JNIEnv *env, jobject& surface);
     void startDecode();
-    void setCallback(PlayerCallback* callback);
     void setDecodeType(DecodeType type);
     void setVideoRenderType(VideoRenderType type);
     void setAudioRenderType(AudioRenderType type);
@@ -44,13 +43,12 @@ private:
     VideoRenderType m_videoRenderType = VIDEO_RENDER_TYPE_AN;
     AudioRenderType m_audioRenderType = AUDIO_RENDER_TYPE_AT;
 
-    PlayerCallback* m_callback = nullptr;
     VideoDecode* m_videoDecode = nullptr;
     AudioDecode* m_audioDecode = nullptr;
     VideoRender* m_videoRender = nullptr;
     AudioRender* m_audioRender = nullptr;
 
-    JNIEnv* m_env = nullptr;
+    JavaVM* m_jvm = nullptr;
     jobject m_obj = nullptr;
     jobject m_surface = nullptr;
 

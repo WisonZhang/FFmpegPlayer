@@ -17,10 +17,11 @@ extern "C" {
 class VideoNativeRender: VideoRender {
 
 public:
+    virtual void init(JNIEnv *env) override;
     int getRenderWidth() override;
     int getRenderHeight() override;
     AVPixelFormat getRenderPixel() override;
-    void setSurface(JNIEnv *env, jobject& surface) override;
+    void setSurface(jobject surface) override;
     void drawFrame(AVFrame* frame) override;
     void release() override;
 

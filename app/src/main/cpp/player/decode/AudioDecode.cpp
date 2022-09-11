@@ -13,6 +13,7 @@ void AudioDecode::setAudioRender(AudioRender *render) {
 }
 
 void AudioDecode::onInfoReady() {
+    m_render->init(m_env);
     m_swrContext = swr_alloc();
     swr_alloc_set_opts(m_swrContext, AUDIO_CHANNEL_COUNT, AUDIO_SAMPLE_FMT, AUDIO_DST_SAMPLE_RATE,
             m_codecContext->channel_layout, m_codecContext->sample_fmt, m_codecContext->sample_rate, 0, nullptr);
@@ -24,7 +25,7 @@ void AudioDecode::onInfoReady() {
     m_buffer = static_cast<uint8_t *>(malloc(m_bufferSize));
 }
 
-void AudioDecode::startDecode() {
+void AudioDecode::doDecode() {
     LOG_D("AudioDecode startDecode");
     while (av_read_frame(m_fmContext, m_packet) >= 0) {
         if (m_packet->stream_index != m_streamIndex) {

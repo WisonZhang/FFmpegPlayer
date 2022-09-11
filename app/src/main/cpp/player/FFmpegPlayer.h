@@ -10,22 +10,14 @@
 class FFmpegPlayer : public Player {
 
 public:
-    void init(JNIEnv *env, jobject obj) override;
-
+    void init(JavaVM *vm, JNIEnv *env, jobject obj) override;
     void setUrl(JNIEnv *env, jstring jurl) override;
-
     void setSurface(JNIEnv *env, jobject surface) override;
-
     void play() override;
-
     void resume() override;
-
     void pause() override;
-
     void stop() override;
-
     void seekTo(long position) override;
-
     void release() override;
 };
 

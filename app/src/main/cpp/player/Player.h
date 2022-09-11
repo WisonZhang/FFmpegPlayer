@@ -6,7 +6,7 @@
 #define FFMEPGPROJECT_PLAYER_H
 
 #include <jni.h>
-#include <decode/PlayerCore.h>
+#include <PlayerCore.h>
 #include <render/VideoNativeRender.h>
 #include "PlayerCallback.h"
 
@@ -14,7 +14,7 @@ class Player {
 public:
     Player() {}
 
-    virtual void init(JNIEnv *env, jobject obj) = 0;
+    virtual void init(JavaVM *vm, JNIEnv *env, jobject obj) = 0;
     virtual void setSurface(JNIEnv *env, jobject surface) = 0;
     virtual void setUrl(JNIEnv *env, jstring jurl) = 0;
     virtual void play() = 0;
@@ -26,7 +26,6 @@ public:
 
 protected:
     PlayerCore* m_playCore = nullptr;
-    PlayerCallback* m_callback = nullptr;
 };
 
 #endif //FFMEPGPROJECT_PLAYER_H

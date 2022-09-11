@@ -12,12 +12,15 @@ extern "C" {
 }
 
 class VideoDecode: public BaseDecode {
+
 public:
     VideoDecode();
     void setVideoRender(VideoRender* render);
-    void onInfoReady() override;
-    void startDecode() override;
     void release() override;
+
+private:
+    void onInfoReady() override;
+    void doDecode() override;
 
 private:
     SwsContext* m_swContext = nullptr;

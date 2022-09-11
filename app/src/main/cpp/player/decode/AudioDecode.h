@@ -17,13 +17,15 @@ static const int AUDIO_CHANNEL_COUNT = AV_CH_LAYOUT_STEREO;
 static const AVSampleFormat AUDIO_SAMPLE_FMT = AV_SAMPLE_FMT_S16;
 
 class AudioDecode : public BaseDecode {
+
 public:
     AudioDecode();
     void setAudioRender(AudioRender* render);
-    void onInfoReady() override;
-    void startDecode() override;
     void release() override;
 
+private:
+    void onInfoReady() override;
+    void doDecode() override;
 
 private:
     SwrContext* m_swrContext = nullptr;

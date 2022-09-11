@@ -16,13 +16,12 @@ void VideoDecode::onInfoReady() {
     if (!m_codecContext) {
         return;
     }
+    m_render->init(m_env);
     m_videoWidth = m_codecContext->width;
     m_videoHeight = m_codecContext->height;
     LOG_D("onInfoReady, width: %d; height: %d", m_videoWidth, m_videoHeight);
 
-    if (m_callback) {
-        m_callback->onVideoSize(m_videoWidth, m_videoHeight);
-    }
+    m_callback->onVideoSize(m_videoWidth, m_videoHeight);
     m_swContext = sws_getContext(m_videoWidth, m_videoHeight, m_codecContext->pix_fmt,
                                  m_render->getRenderWidth(), m_render->getRenderHeight(),
                                  m_render->getRenderPixel(), SWS_FAST_BILINEAR, NULL, NULL, NULL);
@@ -34,7 +33,7 @@ void VideoDecode::onInfoReady() {
                          m_render->getRenderWidth(), m_render->getRenderHeight(), 1);
 }
 
-void VideoDecode::startDecode() {
+void VideoDecode::doDecode() {
     LOG_D("VideoDecode startDecode");
     while (av_read_frame(m_fmContext, m_packet) == 0) {
         if (m_packet->stream_index != m_streamIndex) {

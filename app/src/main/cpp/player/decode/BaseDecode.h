@@ -8,11 +8,14 @@
 #include <PlayerCallback.h>
 #include <render/VideoNativeRender.h>
 #include "LogUtils.h"
+#include "thread"
 
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libavutil/imgutils.h>
 }
+
+using namespace std;
 
 enum MediaType {
     TYPE_VIDEO,
@@ -21,11 +24,16 @@ enum MediaType {
 
 class BaseDecode {
 public:
-    void init(char* url);
-    void setCallback(PlayerCallback *callback);
-    virtual void onInfoReady() = 0;
-    virtual void startDecode() = 0;
+    void play(char* url);
+    void setJavaInfo(JavaVM* vm, jobject obj);
     virtual void release();
+
+private:
+    static void startDecode(char* url, BaseDecode *decode);
+    void attachThread();
+    void doParse(char *url);
+    virtual void onInfoReady() = 0;
+    virtual void doDecode() = 0;
 
 protected:
     AVFormatContext* m_fmContext;
@@ -38,6 +46,11 @@ protected:
     MediaType m_mediaType;
     PlayerCallback* m_callback;
     int m_streamIndex = -1;
+
+    thread *m_thread = nullptr;
+    JavaVM *m_jvm = nullptr;
+    JNIEnv *m_env = nullptr;
+    jobject m_obj = nullptr;
 };
 
 #endif //FFMEPGPROJECT_BASEDECODE_H

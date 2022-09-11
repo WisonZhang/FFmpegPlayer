@@ -4,15 +4,13 @@
 
 #include "FFmpegPlayer.h"
 
-void FFmpegPlayer::init(JNIEnv *env, jobject obj) {
-    m_playCore = new PlayerCore(env, obj);
-    m_callback = new PlayerCallback(env, obj);
-    m_playCore->setCallback(m_callback);
+void FFmpegPlayer::init(JavaVM *vm, JNIEnv *env, jobject obj) {
+    m_playCore = new PlayerCore(vm ,env, obj);
 }
 
 void FFmpegPlayer::setSurface(JNIEnv *env, jobject surface) {
     if (m_playCore) {
-        m_playCore->setSurface(surface);
+        m_playCore->setSurface(env, surface);
     }
 }
 

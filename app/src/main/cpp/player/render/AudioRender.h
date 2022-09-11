@@ -15,9 +15,13 @@ class AudioRender {
 
 public:
     virtual ~AudioRender() = default;
-    virtual void init(JNIEnv* env, jobject obj) = 0;
+    virtual void init(JNIEnv* env) = 0;
+    virtual void setObject(jobject obj) = 0;
     virtual void playData(uint8_t* data, int size) = 0;
     virtual void release() = 0;
+
+protected:
+    jobject m_obj = nullptr;
 };
 
 #endif //FFMEPGPROJECT_AUDIORENDER_H
