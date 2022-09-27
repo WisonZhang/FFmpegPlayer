@@ -34,22 +34,14 @@ void PlayerCore::setAudioRenderType(AudioRenderType type) {
     m_audioRenderType = type;
 }
 
-void PlayerCore::startDecode() {
+void PlayerCore::play() {
     init();
     if (!isInit) {
         return;
     }
-    // 设置视频解码
-    m_videoDecode->setJavaInfo(m_jvm, m_obj);
-    m_videoDecode->setVideoRender(m_videoRender);
-
-    // 设置音频解码
-    m_audioDecode->setJavaInfo(m_jvm, m_obj);
-    m_audioDecode->setAudioRender(m_audioRender);
-
     // 开始解码
-    m_videoDecode->play(m_url);
-    m_audioDecode->play(m_url);
+    m_videoDecode->start(m_url);
+    m_audioDecode->start(m_url);
 }
 
 void PlayerCore::init() {
@@ -80,16 +72,42 @@ void PlayerCore::init() {
         && m_videoRender != nullptr && m_audioRender != nullptr) {
         isInit = true;
     }
+
+    // 设置视频解码
+    m_videoDecode->setJavaInfo(m_jvm, m_obj);
+    m_videoDecode->setVideoRender(m_videoRender);
+
+    // 设置音频解码
+    m_audioDecode->setJavaInfo(m_jvm, m_obj);
+    m_audioDecode->setAudioRender(m_audioRender);
 }
 
-void PlayerCore::release() {
+void PlayerCore::start() {
     if (m_videoDecode) {
-        m_videoDecode->release();
+        m_videoDecode->start(m_url);
+    }
+    if (m_audioDecode) {
+        m_audioDecode->start(m_url);
+    }
+}
+
+void PlayerCore::pause() {
+    if (m_videoDecode) {
+        m_videoDecode->pause();
+    }
+    if (m_audioDecode) {
+        m_audioDecode->pause();
+    }
+}
+
+void PlayerCore::stop() {
+    if (m_videoDecode) {
+        m_videoDecode->stop();
         delete m_videoDecode;
         m_videoDecode = nullptr;
     }
     if (m_audioDecode) {
-        m_audioDecode->release();
+        m_audioDecode->stop();
         delete m_audioDecode;
         m_audioDecode = nullptr;
     }

@@ -17,6 +17,13 @@ extern "C" {
 
 using namespace std;
 
+enum DecoderState {
+    STATE_UNKNOWN,
+    STATE_PLAY,
+    STATE_PAUSE,
+    STATE_STOP
+};
+
 enum MediaType {
     TYPE_VIDEO,
     TYPE_AUDIO
@@ -24,16 +31,17 @@ enum MediaType {
 
 class BaseDecode {
 public:
-    void play(char* url);
+    void start(char* url);
+    void pause();
+    virtual void stop();
     void setJavaInfo(JavaVM* vm, jobject obj);
-    virtual void release();
 
 private:
     static void startDecode(char* url, BaseDecode *decode);
     void attachThread();
     void doParse(char *url);
     virtual void onInfoReady() = 0;
-    virtual void doDecode() = 0;
+    virtual int doDecode() = 0;
 
 protected:
     AVFormatContext* m_fmContext;
@@ -47,6 +55,10 @@ protected:
     PlayerCallback* m_callback;
     int m_streamIndex = -1;
 
+    //解码器状态
+    volatile int m_state = STATE_UNKNOWN;
+    mutex m_mutex;
+    condition_variable m_condition;
     thread *m_thread = nullptr;
     JavaVM *m_jvm = nullptr;
     JNIEnv *m_env = nullptr;

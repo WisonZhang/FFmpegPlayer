@@ -4,12 +4,6 @@
 
 #include "BaseDecode.h"
 
-void BaseDecode::play(char *url) {
-    if (m_thread == nullptr) {
-        m_thread = new thread(startDecode, url, this);
-    }
-}
-
 void BaseDecode::setJavaInfo(JavaVM *vm, jobject obj) {
     m_jvm = vm;
     m_obj = obj;
@@ -19,7 +13,21 @@ void BaseDecode::startDecode(char *url, BaseDecode *decode) {
     decode->attachThread();
     decode->doParse(url);
     decode->onInfoReady();
-    decode->doDecode();
+
+    for (;;) {
+        if (decode->m_state == STATE_PAUSE) {
+            unique_lock<mutex> lock(decode->m_mutex);
+            decode->m_condition.wait(lock);
+        }
+        if (decode->m_state == STATE_STOP) {
+            return;
+        }
+        if(decode->doDecode() < 0) {
+            unique_lock<mutex> lock(decode->m_mutex);
+            decode->m_state = STATE_PAUSE;
+            return;
+        }
+    }
 }
 
 void BaseDecode::attachThread() {
@@ -33,13 +41,13 @@ void BaseDecode::doParse(char *url) {
     m_fmContext = avformat_alloc_context();
     res = avformat_open_input(&m_fmContext, url, nullptr, nullptr);
     if (res < 0) {
-        release();
+        stop();
         return;
     }
 
     res = avformat_find_stream_info(m_fmContext, NULL);
     if (res < 0) {
-        release();
+        stop();
         return;
     }
 
@@ -58,7 +66,7 @@ void BaseDecode::doParse(char *url) {
     }
 
     if (m_streamIndex < 0) {
-        release();
+        stop();
         return;
     }
 
@@ -68,7 +76,7 @@ void BaseDecode::doParse(char *url) {
     avcodec_parameters_to_context(m_codecContext, m_codecParam);
     res = avcodec_open2(m_codecContext, m_decoder, NULL);
     if (res < 0) {
-        release();
+        stop();
         return;
     }
 
@@ -76,7 +84,29 @@ void BaseDecode::doParse(char *url) {
     m_frame = av_frame_alloc();
 }
 
-void BaseDecode::release() {
+void BaseDecode::start(char *url) {
+    if (m_thread == nullptr) {
+        m_thread = new thread(startDecode, url, this);
+    } else {
+        unique_lock<mutex> lock(m_mutex);
+        m_state = STATE_PLAY;
+        m_condition.notify_all();
+    }
+}
+
+void BaseDecode::pause() {
+    unique_lock<mutex> lock(m_mutex);
+    m_state = STATE_PAUSE;
+    m_condition.notify_all();
+}
+
+void BaseDecode::stop() {
+    unique_lock<mutex> lock(m_mutex);
+    m_state = STATE_STOP;
+    m_condition.notify_all();
+
+    m_thread->join();
+
     if (m_frame) {
         av_frame_free(&m_frame);
         m_frame = nullptr;

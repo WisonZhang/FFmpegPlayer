@@ -29,11 +29,14 @@ public:
     PlayerCore(JavaVM* vm, JNIEnv* env, jobject obj);
     void setUrl(const char* url);
     void setSurface(JNIEnv *env, jobject& surface);
-    void startDecode();
     void setDecodeType(DecodeType type);
     void setVideoRenderType(VideoRenderType type);
     void setAudioRenderType(AudioRenderType type);
-    void release();
+
+    void play();
+    void start();
+    void pause();
+    void stop();
 
 private:
     void init();

@@ -32,6 +32,26 @@ Java_com_wison_ffmpeg_player_MediaView_playVideo(JNIEnv *env, jobject thiz, jstr
 
 extern "C"
 JNIEXPORT void JNICALL
+Java_com_wison_ffmpeg_player_MediaView_resumeVideo(JNIEnv *env, jobject thiz, jlong ptr) {
+    auto *player = reinterpret_cast<FFmpegPlayer *>(ptr);
+    if (!player) {
+        return;
+    }
+    player->resume();
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_wison_ffmpeg_player_MediaView_pauseVideo(JNIEnv *env, jobject thiz, jlong ptr) {
+    auto *player = reinterpret_cast<FFmpegPlayer *>(ptr);
+    if (!player) {
+        return;
+    }
+    player->pause();
+}
+
+extern "C"
+JNIEXPORT void JNICALL
 Java_com_wison_ffmpeg_player_MediaView_stopVideo(JNIEnv *env, jobject thiz, jlong ptr) {
     auto *player = reinterpret_cast<FFmpegPlayer *>(ptr);
     if (!player) {
@@ -39,4 +59,3 @@ Java_com_wison_ffmpeg_player_MediaView_stopVideo(JNIEnv *env, jobject thiz, jlon
     }
     player->stop();
 }
-

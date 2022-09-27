@@ -25,29 +25,37 @@ void AudioDecode::onInfoReady() {
     m_buffer = static_cast<uint8_t *>(malloc(m_bufferSize));
 }
 
-void AudioDecode::doDecode() {
+int AudioDecode::doDecode() {
     LOG_D("AudioDecode startDecode");
     while (av_read_frame(m_fmContext, m_packet) >= 0) {
         if (m_packet->stream_index != m_streamIndex) {
+            LOG_D("AudioDecode stream index error");
             av_packet_unref(m_packet);
             continue;
         }
         int res = avcodec_send_packet(m_codecContext, m_packet);
         if (res < 0) {
+            LOG_D("AudioDecode avcodec_send_packet error");
             av_packet_unref(m_packet);
-            continue;
+            return -1;
         }
+        int frameCount = 0;
         while (avcodec_receive_frame(m_codecContext, m_frame) >= 0) {
             res = swr_convert(m_swrContext, &m_buffer, m_bufferSize, (const uint8_t**) m_frame->data, m_frame->nb_samples);
             if (res >= 0) {
                 m_render->playData(m_buffer, m_bufferSize);
             }
+            frameCount++;
+        }
+        av_packet_unref(m_packet);
+        if (frameCount > 0) {
+            return 0;
         }
     }
 }
 
-void AudioDecode::release() {
-    BaseDecode::release();
+void AudioDecode::stop() {
+    BaseDecode::stop();
     swr_close(m_swrContext);
     swr_free(&m_swrContext);
 }

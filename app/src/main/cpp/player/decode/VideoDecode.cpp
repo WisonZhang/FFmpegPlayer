@@ -33,29 +33,36 @@ void VideoDecode::onInfoReady() {
                          m_render->getRenderWidth(), m_render->getRenderHeight(), 1);
 }
 
-void VideoDecode::doDecode() {
+int VideoDecode::doDecode() {
     LOG_D("VideoDecode startDecode");
     while (av_read_frame(m_fmContext, m_packet) == 0) {
         if (m_packet->stream_index != m_streamIndex) {
+            LOG_D("VideoDecode stream index error");
             av_packet_unref(m_packet);
             continue;
         }
         int res = avcodec_send_packet(m_codecContext, m_packet);
         if (res != 0) {
+            LOG_D("VideoDecode avcodec_send_packet error");
             av_packet_unref(m_packet);
-            continue;
+            return -1;
         }
+        int frameCount = 0;
         while (avcodec_receive_frame(m_codecContext, m_frame) == 0) {
             sws_scale(m_swContext, m_frame->data, m_frame->linesize, 0, m_videoHeight,
                       m_rgbFrame->data, m_rgbFrame->linesize);
             m_render->drawFrame(m_rgbFrame);
+            frameCount++;
         }
         av_packet_unref(m_packet);
+        if (frameCount > 0) {
+            return 0;
+        }
     }
 }
 
-void VideoDecode::release() {
-    BaseDecode::release();
+void VideoDecode::stop() {
+    BaseDecode::stop();
 
     if (m_buffer) {
         free(m_buffer);

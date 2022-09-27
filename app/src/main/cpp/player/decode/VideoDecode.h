@@ -16,11 +16,11 @@ class VideoDecode: public BaseDecode {
 public:
     VideoDecode();
     void setVideoRender(VideoRender* render);
-    void release() override;
+    void stop() override;
 
 private:
     void onInfoReady() override;
-    void doDecode() override;
+    int doDecode() override;
 
 private:
     SwsContext* m_swContext = nullptr;

@@ -24,16 +24,20 @@ void FFmpegPlayer::setUrl(JNIEnv *env, jstring jurl) {
 
 void FFmpegPlayer::play() {
     if (m_playCore) {
-        m_playCore->startDecode();
+        m_playCore->play();
     }
 }
 
 void FFmpegPlayer::resume() {
-
+    if (m_playCore) {
+        m_playCore->start();
+    }
 }
 
 void FFmpegPlayer::pause() {
-
+    if (m_playCore) {
+        m_playCore->pause();
+    }
 }
 
 void FFmpegPlayer::seekTo(long position) {
@@ -42,7 +46,7 @@ void FFmpegPlayer::seekTo(long position) {
 
 void FFmpegPlayer::stop() {
     if (m_playCore) {
-        m_playCore->release();
+        m_playCore->stop();
     }
 }
 

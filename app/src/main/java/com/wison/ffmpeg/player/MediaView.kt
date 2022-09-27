@@ -7,14 +7,10 @@ import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.AudioTrack
-import android.os.Handler
-import android.os.Looper
 import android.util.AttributeSet
-import android.util.Log
 import android.view.Surface
-import android.view.SurfaceView
 import android.view.TextureView
-import android.widget.FrameLayout
+import android.view.View
 import android.widget.RelativeLayout
 
 /**
@@ -30,6 +26,7 @@ class MediaView: RelativeLayout, TextureView.SurfaceTextureListener {
 
     private val mTextureView = MediaTextureView(context)
     private val mSurfaceView = MediaSurfaceView(context)
+    private val mBlackCover = View(context)
     private val mListener = PlayerListenerImpl(this)
     private var mPath: String? = null
     private var mSurface: Surface? = null
@@ -51,6 +48,9 @@ class MediaView: RelativeLayout, TextureView.SurfaceTextureListener {
 //        addView(mTextureView, lp)
         addView(mSurfaceView, lp)
 //        mTextureView.surfaceTextureListener = this
+
+        mBlackCover.setBackgroundColor(Color.BLACK)
+        addView(mBlackCover, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
     }
 
     fun setPath(path: String?) {
@@ -63,14 +63,25 @@ class MediaView: RelativeLayout, TextureView.SurfaceTextureListener {
     }
 
     fun play() {
-        mSurface = mSurfaceView.holder.surface
-        mPath ?: return
-        mSurface ?: return
-        mPlayerPtr = playVideo(mPath!!, mSurface!!)
+        mBlackCover.visibility = View.GONE
+        if (mPlayerPtr == 0L) {
+            mSurface = mSurfaceView.holder.surface
+            mPath ?: return
+            mSurface ?: return
+            mPlayerPtr = playVideo(mPath!!, mSurface!!)
+        } else {
+            resumeVideo(mPlayerPtr)
+        }
+    }
+
+    fun pause() {
+        pauseVideo(mPlayerPtr)
     }
 
     fun stop() {
+        mBlackCover.visibility = View.VISIBLE
         stopVideo(mPlayerPtr)
+        mPlayerPtr = 0L
     }
 
     override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
@@ -113,6 +124,10 @@ class MediaView: RelativeLayout, TextureView.SurfaceTextureListener {
     }
 
     private external fun playVideo(path: String, surface: Surface): Long
+
+    private external fun resumeVideo(player: Long)
+
+    private external fun pauseVideo(player: Long)
 
     private external fun stopVideo(player: Long)
 
