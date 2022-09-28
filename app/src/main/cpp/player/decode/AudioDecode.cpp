@@ -41,6 +41,8 @@ int AudioDecode::doDecode() {
         }
         int frameCount = 0;
         while (avcodec_receive_frame(m_codecContext, m_frame) >= 0) {
+            updateTimeStamp();
+            doAsync();
             res = swr_convert(m_swrContext, &m_buffer, m_bufferSize, (const uint8_t**) m_frame->data, m_frame->nb_samples);
             if (res >= 0) {
                 m_render->playData(m_buffer, m_bufferSize);

@@ -40,6 +40,7 @@ public:
 
 private:
     void init();
+    static long avAsync(void* context, MediaType type);
 
     char* m_url;
     DecodeType m_decodeType = DECODE_TYPE_FFM;

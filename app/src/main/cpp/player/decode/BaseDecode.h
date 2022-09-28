@@ -13,6 +13,7 @@
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libavutil/imgutils.h>
+#include <libavutil/time.h>
 }
 
 using namespace std;
@@ -29,12 +30,20 @@ enum MediaType {
     TYPE_AUDIO
 };
 
+typedef long (*AsyncCallback)(void* context, MediaType type);
+
 class BaseDecode {
 public:
     void start(char* url);
     void pause();
     virtual void stop();
     void setJavaInfo(JavaVM* vm, jobject obj);
+    void setAsyncCallback(void* context, AsyncCallback callback);
+    long getCurrentTimeStamp();
+
+protected:
+    void updateTimeStamp();
+    void doAsync();
 
 private:
     static void startDecode(char* url, BaseDecode *decode);
@@ -44,16 +53,19 @@ private:
     virtual int doDecode() = 0;
 
 protected:
-    AVFormatContext* m_fmContext;
-    AVCodecParameters* m_codecParam;
-    AVCodec* m_decoder;
-    AVCodecContext* m_codecContext;
-    AVPacket* m_packet;
-    AVFrame* m_frame;
+    AVFormatContext* m_fmContext = nullptr;;
+    AVCodecParameters* m_codecParam = nullptr;;
+    AVCodec* m_decoder = nullptr;;
+    AVCodecContext* m_codecContext = nullptr;;
+    AVPacket* m_packet = nullptr;;
+    AVFrame* m_frame = nullptr;;
 
     MediaType m_mediaType;
-    PlayerCallback* m_callback;
+    PlayerCallback* m_callback = nullptr;;
+    void* m_asyncContext = nullptr;;
+    AsyncCallback m_asyncCallback = nullptr;;
     int m_streamIndex = -1;
+    long m_curTimeStamp = 0;
 
     //解码器状态
     volatile int m_state = STATE_UNKNOWN;

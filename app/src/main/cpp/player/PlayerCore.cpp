@@ -75,11 +75,20 @@ void PlayerCore::init() {
 
     // 设置视频解码
     m_videoDecode->setJavaInfo(m_jvm, m_obj);
+    m_videoDecode->setAsyncCallback(this, avAsync);
     m_videoDecode->setVideoRender(m_videoRender);
 
     // 设置音频解码
     m_audioDecode->setJavaInfo(m_jvm, m_obj);
     m_audioDecode->setAudioRender(m_audioRender);
+}
+
+long PlayerCore::avAsync(void* context, MediaType mediaType) {
+    auto *core = reinterpret_cast<PlayerCore*>(context);
+    if (mediaType == TYPE_VIDEO && core->m_audioDecode != nullptr) {
+        return core->m_audioDecode->getCurrentTimeStamp();
+    }
+    return 0;
 }
 
 void PlayerCore::start() {

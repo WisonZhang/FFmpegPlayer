@@ -9,6 +9,15 @@ void BaseDecode::setJavaInfo(JavaVM *vm, jobject obj) {
     m_obj = obj;
 }
 
+void BaseDecode::setAsyncCallback(void* context, AsyncCallback callback) {
+    m_asyncContext = context;
+    m_asyncCallback = callback;
+}
+
+long BaseDecode::getCurrentTimeStamp() {
+    return m_curTimeStamp;
+}
+
 void BaseDecode::startDecode(char *url, BaseDecode *decode) {
     decode->attachThread();
     decode->doParse(url);
@@ -82,6 +91,28 @@ void BaseDecode::doParse(char *url) {
 
     m_packet = av_packet_alloc();
     m_frame = av_frame_alloc();
+}
+
+void BaseDecode::updateTimeStamp() {
+    if (m_frame == nullptr) {
+        return;
+    }
+    int pts = 0;
+    if (m_frame->pts != AV_NOPTS_VALUE) {
+        pts = m_frame->pts;
+    }
+    m_curTimeStamp = (int64_t)((pts * av_q2d(m_fmContext->streams[m_streamIndex]->time_base)) * 1000);
+    LOG_D("timestamp: %lf", pts * av_q2d(m_fmContext->streams[m_streamIndex]->time_base));
+}
+
+void BaseDecode::doAsync() {
+    if(m_asyncCallback != nullptr) {
+        long elapsedTime = m_asyncCallback(m_asyncContext, m_mediaType);
+        if(m_curTimeStamp > elapsedTime) {
+            auto sleepTime = static_cast<unsigned int>(m_curTimeStamp - elapsedTime);
+            av_usleep(sleepTime * 1000);
+        }
+    }
 }
 
 void BaseDecode::start(char *url) {

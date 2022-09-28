@@ -49,6 +49,8 @@ int VideoDecode::doDecode() {
         }
         int frameCount = 0;
         while (avcodec_receive_frame(m_codecContext, m_frame) == 0) {
+            updateTimeStamp();
+            doAsync();
             sws_scale(m_swContext, m_frame->data, m_frame->linesize, 0, m_videoHeight,
                       m_rgbFrame->data, m_rgbFrame->linesize);
             m_render->drawFrame(m_rgbFrame);
