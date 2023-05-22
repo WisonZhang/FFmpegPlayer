@@ -13,23 +13,28 @@ void AudioDecode::setAudioRender(AudioRender *render) {
 }
 
 void AudioDecode::onInfoReady() {
-    m_render->init(m_env);
-    m_swrContext = swr_alloc();
-    swr_alloc_set_opts(m_swrContext, AUDIO_CHANNEL_COUNT, AUDIO_SAMPLE_FMT, AUDIO_DST_SAMPLE_RATE,
-            m_codecContext->channel_layout, m_codecContext->sample_fmt, m_codecContext->sample_rate, 0, nullptr);
+    m_swrContext = swr_alloc_set_opts(NULL, AUDIO_CHANNEL_COUNT, AUDIO_SAMPLE_FMT, AUDIO_DST_SAMPLE_RATE,
+                       m_codecContext->channel_layout, m_codecContext->sample_fmt,
+                       m_codecContext->sample_rate, 0, nullptr);
     swr_init(m_swrContext);
 
     int channelCount = av_get_channel_layout_nb_channels(AUDIO_CHANNEL_COUNT);
-    int sample = (int)av_rescale_rnd(1024, AUDIO_DST_SAMPLE_RATE, m_codecContext->sample_rate, AV_ROUND_UP);
-    m_bufferSize = av_samples_get_buffer_size(NULL, channelCount, sample, AUDIO_SAMPLE_FMT, 1);
-    m_buffer = static_cast<uint8_t *>(malloc(m_bufferSize));
+    int resample = (int) av_rescale_rnd(m_codecContext->frame_size, AUDIO_DST_SAMPLE_RATE,
+                                      m_codecContext->sample_rate, AV_ROUND_UP);
+
+    m_bufferSize = av_samples_get_buffer_size(nullptr, channelCount, m_codecContext->frame_size, AUDIO_SAMPLE_FMT, 0);
+    m_buffer = (uint8_t*) malloc(m_bufferSize);
+
+    m_render->init(m_env, m_bufferSize);
+
+    LOG_D("sample_rate = %d", m_codecContext->frame_size);
+    LOG_D("channelCount = %d", channelCount);
+    LOG_D("buffer size = %d", m_bufferSize);
 }
 
 int AudioDecode::doDecode() {
-    LOG_D("AudioDecode startDecode");
     while (av_read_frame(m_fmContext, m_packet) >= 0) {
         if (m_packet->stream_index != m_streamIndex) {
-            LOG_D("AudioDecode stream index error");
             av_packet_unref(m_packet);
             continue;
         }
@@ -42,10 +47,11 @@ int AudioDecode::doDecode() {
         int frameCount = 0;
         while (avcodec_receive_frame(m_codecContext, m_frame) >= 0) {
             updateTimeStamp();
-            doAsync();
-            res = swr_convert(m_swrContext, &m_buffer, m_bufferSize, (const uint8_t**) m_frame->data, m_frame->nb_samples);
+//            doAsync();
+            res = swr_convert(m_swrContext, &m_buffer, m_bufferSize,
+                              (const uint8_t **) m_frame->data, m_frame->nb_samples);
             if (res >= 0) {
-                m_render->playData(m_buffer, m_bufferSize);
+                m_render->playFrame(m_buffer, m_bufferSize);
             }
             frameCount++;
         }
@@ -54,6 +60,7 @@ int AudioDecode::doDecode() {
             return 0;
         }
     }
+    m_render->onFrameEnd();
 }
 
 void AudioDecode::stop() {

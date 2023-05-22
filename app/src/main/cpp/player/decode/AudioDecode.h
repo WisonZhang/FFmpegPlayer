@@ -12,6 +12,7 @@ extern "C" {
 #include <libswresample/swresample.h>
 }
 
+// ACC音频一帧采样数
 static const int AUDIO_DST_SAMPLE_RATE = 44100;
 static const int AUDIO_CHANNEL_COUNT = AV_CH_LAYOUT_STEREO;
 static const AVSampleFormat AUDIO_SAMPLE_FMT = AV_SAMPLE_FMT_S16;

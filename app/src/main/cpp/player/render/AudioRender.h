@@ -15,9 +15,10 @@ class AudioRender {
 
 public:
     virtual ~AudioRender() = default;
-    virtual void init(JNIEnv* env) = 0;
+    virtual void init(JNIEnv* env, int dataSize) = 0;
     virtual void setObject(jobject obj) = 0;
-    virtual void playData(uint8_t* data, int size) = 0;
+    virtual void playFrame(uint8_t* data, int size) = 0;
+    virtual void onFrameEnd() = 0;
     virtual void release() = 0;
 
 protected:

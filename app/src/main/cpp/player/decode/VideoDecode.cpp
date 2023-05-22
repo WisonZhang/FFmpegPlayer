@@ -34,10 +34,8 @@ void VideoDecode::onInfoReady() {
 }
 
 int VideoDecode::doDecode() {
-    LOG_D("VideoDecode startDecode");
     while (av_read_frame(m_fmContext, m_packet) == 0) {
         if (m_packet->stream_index != m_streamIndex) {
-            LOG_D("VideoDecode stream index error");
             av_packet_unref(m_packet);
             continue;
         }

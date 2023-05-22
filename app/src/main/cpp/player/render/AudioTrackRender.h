@@ -10,14 +10,18 @@
 class AudioTrackRender: AudioRender {
 
 public:
-    void init(JNIEnv *env) override;
+    void init(JNIEnv *env, int dataSize) override;
     void setObject(jobject obj) override;
-    void playData(uint8_t *data, int size) override;
+    void playFrame(uint8_t *data, int size) override;
+    void onFrameEnd() override;
     void release() override;
 
 private:
     JNIEnv* m_env = nullptr;
     jobject m_obj = nullptr;
+
+    jbyteArray m_audioArray = nullptr;
+    jbyte* m_audioData = nullptr;
     jmethodID m_playMethod = nullptr;
 };
 

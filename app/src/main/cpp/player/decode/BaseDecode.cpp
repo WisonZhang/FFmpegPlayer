@@ -102,7 +102,6 @@ void BaseDecode::updateTimeStamp() {
         pts = m_frame->pts;
     }
     m_curTimeStamp = (int64_t)((pts * av_q2d(m_fmContext->streams[m_streamIndex]->time_base)) * 1000);
-    LOG_D("timestamp: %lf", pts * av_q2d(m_fmContext->streams[m_streamIndex]->time_base));
 }
 
 void BaseDecode::doAsync() {

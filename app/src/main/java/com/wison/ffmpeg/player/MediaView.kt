@@ -8,6 +8,7 @@ import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.AudioTrack
 import android.util.AttributeSet
+import android.util.Log
 import android.view.Surface
 import android.view.TextureView
 import android.view.View
@@ -109,12 +110,14 @@ class MediaView: RelativeLayout, TextureView.SurfaceTextureListener {
             .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
             .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
             .build()
+        // 4096
         val bufferSize = AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT)
-        mAudioTrack = AudioTrack(attr, format, bufferSize, AudioTrack.MODE_STREAM, AudioManager.AUDIO_SESSION_ID_GENERATE)
+        Log.i("wison", "buffersize = $bufferSize")
+        mAudioTrack = AudioTrack(AudioManager.STREAM_MUSIC, 44100, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT, bufferSize, AudioTrack.MODE_STREAM)
+        mAudioTrack?.play()
     }
 
     private fun audioTrackPlay(buffer: ByteArray, length: Int) {
-        mAudioTrack?.play()
         mAudioTrack?.write(buffer, 0, length)
     }
 
